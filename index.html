@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Técnico de Operación - Comparativa Fiduciaria Tizapán | DOXUS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --doxus-blue: #262a36;
+            --doxus-yellow: #Ffbc06;
+            --doxus-yellow-hover: #e5a800;
+            --bg-light-gray: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-color: #e9ecef;
+            --text-slate: #5a6275;
+            --text-charcoal: #1e212b;
+            --radius-card: 1.5rem;
+            --radius-sub: 1rem;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-light-gray);
+            color: var(--text-charcoal);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--bg-light-gray);
+            overflow-x: hidden;
+        }
+
+        /* PANTALLA DE ACCESO (LOCK SCREEN) */
+        #lock-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background-color: rgba(38, 42, 54, 0.96);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #lock-screen.unlocked {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .lock-card {
+            background: var(--bg-white);
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 440px;
+            padding: 2.75rem 2.25rem;
+            text-align: center;
+        }
+
+        .logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rounded {
+            border-radius: 0.5rem;
+        }
+
+        .logo-fallback {
+            background-color: var(--doxus-yellow);
+            color: #000000;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .lock-logo-fallback {
+            width: 56px;
+            height: 56px;
+            font-size: 1.75rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .lock-title {
+            color: var(--doxus-blue);
+            font-weight: 900;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .lock-subtitle {
+            color: var(--text-slate);
+            font-size: 0.9rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .lock-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-charcoal);
+            text-align: center;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .lock-input:focus {
+            border-color: var(--doxus-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 188, 6, 0.2);
+        }
+
+        .lock-btn {
+            width: 100%;
+            padding: 0.95rem 1.25rem;
+            background-color: var(--doxus-yellow);
+            color: var(--doxus-blue);
+            border: none;
+            border-radius: 0.75rem;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .lock-btn:hover {
+            background-color: var(--doxus-yellow-hover);
+            transform: translateY(-1px);
+        }
+
+        .lock-error {
+            color: #dc2626;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            min-height: 1.2rem;
+        }
+
+        /* BARRA DE NAVEGACIÓN SUPERIOR */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--doxus-blue);
+            border-bottom: 3px solid var(--doxus-yellow);
+            padding: 0.85rem 1.5rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .nav-logo-img {
+            height: 36px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-logo-fallback {
+            width: 36px;
+            height: 36px;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            transition: var(--transition);
+            padding: 0.35rem 0.5rem;
+            border-radius: 0.4rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--doxus-yellow);
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        /* HERO HEADER */
+        .hero-header {
+            background-color: var(--doxus-blue);
+            color: var(--bg-white);
+            padding: 4rem 1.5rem 4.5rem;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--doxus-yellow);
+            background-color: rgba(255, 188, 6, 0.1);
+            color: var(--doxus-yellow);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--doxus-yellow);
+        }
+
+        .hero-title {
+            font-weight: 900;
+            font-size: clamp(1.85rem, 4vw, 2.85rem);
+            line-height: 1.15;
+            letter-spacing: -0.025em;
+            color: var(--bg-white);
+            margin-bottom: 1.25rem;
+            max-width: 920px;
+        }
+
+        .hero-desc {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 1.05rem;
+            max-width: 840px;
+            margin-bottom: 2.25rem;
+            font-weight: 400;
+        }
+
+        .hero-meta-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding-top: 1.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--doxus-yellow);
+            font-weight: 700;
+        }
+
+        .meta-value {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--bg-white);
+        }
+
+        /* CONTENEDOR PRINCIPAL Y TARJETAS DE PRESENTACIÓN */
+        .main-content {
+            max-width: 1200px;
+            margin: -2rem auto 4rem;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .card-presentation {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+            padding: 2.25rem;
+            position: relative;
+            scroll-margin-top: 5.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .title-accent-bar {
+            width: 6px;
+            height: 28px;
+            background-color: var(--doxus-yellow);
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--doxus-blue);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .section-tag {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--doxus-blue);
+            opacity: 0.4;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .section-intro {
+            color: var(--text-slate);
+            font-size: 0.95rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* APARTADO 01: HOJA DE RUTA */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 1.25rem;
+        }
+
+        .roadmap-step {
+            background-color: var(--bg-light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sub);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .roadmap-step:hover {
+            border-color: var(--doxus-yellow);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: var(--doxus-blue);
+            color: var(--doxus-yellow);
+            font-weight: 900;
+            font-size: 0.9rem;
+            border-radius: 0.6rem;
+        }
+
+        .step-title {
+            font-weight: 800;
+            font-size: 1.02rem;
+            color: var(--doxus-blue);
+        }
+
+        .step-desc {
+            font-size: 0.88rem;
+            color: var(--text-charcoal);
+        }
+
+        /* APARTADO 02: ACORDEONES Y DESGLOSE MODULAR */
+        .accordion-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.25rem;
+        }
+
+        .btn-toggle-all {
+            background-color: var(--bg-light-gray);
+            border: 1px solid var(--border-color);
+            color: var(--doxus-blue);
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.55rem 1rem;
+            border-radius: 0.6rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-toggle-all:hover {
+            border-color: var(--doxus-blue);
+            background-color: var(--bg-white);
+        }
+
+        .accordion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+        }
+
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sub);
+            overflow: hidden;
+            background-color: var(--bg-white);
+        }
+
+        .accordion-header {
+            width: 100%;
+            background-color: var(--bg-light-gray);
+            border: none;
+            padding: 1.15rem 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .accordion-header:hover {
+            background-color: #f1f3f5;
+        }
+
+        .accordion-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .badge-id {
+            background-color: var(--doxus-blue);
+            color: var(--doxus-yellow);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.25rem 0.65rem;
+            border-radius: 0.4rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .accordion-title {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--doxus-blue);
+        }
+
+        .accordion-chevron {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-slate);
+            transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .accordion-item.open .accordion-chevron {
+            transform: rotate(180deg);
+            background-color: var(--doxus-yellow);
+            color: var(--doxus-blue);
+            border-color: var(--doxus-yellow);
+        }
+
+        .accordion-body {
+            display: none;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .accordion-item.open .accordion-body {
+            display: block;
+        }
+
+        .subcards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+            gap: 1rem;
+        }
+
+        .subcard {
+            background-color: var(--bg-light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 0.85rem;
+            padding: 1.2rem;
+        }
+
+        .subcard-full {
+            grid-column: 1 / -1;
+            border-left: 4px solid var(--doxus-yellow);
+        }
+
+        .subcard-label {
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-slate);
+            margin-bottom: 0.45rem;
+        }
+
+        .subcard-value {
+            font-size: 0.93rem;
+            color: var(--text-charcoal);
+        }
+
+        .subcard-value strong {
+            color: var(--doxus-blue);
+        }
+
+        .subcard-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            font-size: 0.9rem;
+        }
+
+        .subcard-list li {
+            position: relative;
+            padding-left: 1.1rem;
+        }
+
+        .subcard-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55rem;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: var(--doxus-yellow);
+        }
+
+        /* APARTADO 03: ESQUEMA FINANCIERO Y TABLA MATRICIAL */
+        .financial-banner {
+            background-color: var(--doxus-yellow);
+            color: var(--doxus-blue);
+            border-radius: var(--radius-sub);
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            align-items: center;
+        }
+
+        .fin-metric {
+            background-color: rgba(255, 255, 255, 0.35);
+            padding: 1.1rem 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(38, 42, 54, 0.12);
+        }
+
+        .fin-metric-label {
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            opacity: 0.85;
+            margin-bottom: 0.3rem;
+        }
+
+        .fin-metric-amount {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+
+        .fin-metric-sub {
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            opacity: 0.9;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sub);
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            min-width: 720px;
+        }
+
+        .matrix-table thead th {
+            background-color: var(--bg-light-gray);
+            color: var(--doxus-blue);
+            font-weight: 800;
+            text-align: left;
+            padding: 1rem 1.1rem;
+            border-bottom: 2px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .matrix-table thead th:last-child {
+            border-right: none;
+        }
+
+        .matrix-table tbody td {
+            padding: 0.95rem 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .matrix-table tbody td:last-child {
+            border-right: none;
+        }
+
+        .matrix-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .matrix-table .sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: var(--bg-white);
+            font-weight: 700;
+            color: var(--doxus-blue);
+            z-index: 2;
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .matrix-table thead .sticky-col {
+            background-color: var(--bg-light-gray);
+            z-index: 3;
+        }
+
+        .row-highlight td {
+            background-color: rgba(255, 188, 6, 0.14);
+            font-weight: 800;
+            color: var(--doxus-blue);
+        }
+
+        .row-highlight .sticky-col {
+            background-color: #fff6db;
+        }
+
+        .cell-best {
+            color: #15803d;
+            font-weight: 700;
+        }
+
+        .cell-warn {
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        .table-footnote {
+            margin-top: 0.85rem;
+            font-size: 0.8rem;
+            color: var(--text-slate);
+        }
+
+        /* APARTADO 04: DIAGNÓSTICO, TIEMPOS Y ANÁLISIS RADIAL */
+        .diag-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 7px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.75rem;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--doxus-yellow);
+            border: 3px solid var(--doxus-blue);
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-slate);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-title {
+            font-weight: 800;
+            font-size: 0.98rem;
+            color: var(--doxus-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.87rem;
+            color: var(--text-charcoal);
+        }
+
+        .critical-note {
+            margin-top: 1.75rem;
+            background-color: var(--bg-light-gray);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--doxus-yellow);
+            border-radius: 0.85rem;
+            padding: 1.25rem;
+        }
+
+        .critical-note-title {
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--doxus-blue);
+            margin-bottom: 0.45rem;
+        }
+
+        .critical-note-text {
+            font-size: 0.88rem;
+            color: var(--text-charcoal);
+        }
+
+        .radar-box {
+            background-color: var(--bg-light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sub);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .radar-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--doxus-blue);
+            margin-bottom: 0.35rem;
+        }
+
+        .radar-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-slate);
+            margin-bottom: 1rem;
+        }
+
+        .radar-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--doxus-blue);
+        }
+
+        .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .radar-svg-wrap {
+            width: 100%;
+            max-width: 460px;
+            margin: 0 auto;
+        }
+
+        .radar-svg-wrap svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* APARTADO 05: INVENTARIO DE DOCUMENTOS */
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            min-width: 680px;
+        }
+
+        .doc-table thead th {
+            background-color: var(--bg-light-gray);
+            color: var(--doxus-blue);
+            font-weight: 800;
+            text-align: left;
+            padding: 0.95rem 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .doc-table tbody td {
+            padding: 0.95rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .doc-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .doc-id {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            background-color: var(--doxus-blue);
+            color: var(--doxus-yellow);
+            padding: 0.2rem 0.55rem;
+            border-radius: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .status-pill {
+            display: inline-block;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 0.22rem 0.65rem;
+            border-radius: 999px;
+            background-color: rgba(255, 188, 6, 0.2);
+            color: var(--doxus-blue);
+            white-space: nowrap;
+        }
+
+        /* PIE DE PÁGINA INSTITUCIONAL */
+        .site-footer {
+            background-color: var(--doxus-blue);
+            color: var(--bg-white);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 1.5rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo-img {
+            height: 44px;
+            width: auto;
+            display: block;
+        }
+
+        .footer-logo-fallback {
+            width: 44px;
+            height: 44px;
+            font-size: 1.45rem;
+        }
+
+        .footer-texts {
+            max-width: 720px;
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .footer-signature {
+            font-weight: 800;
+            font-size: 0.92rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--doxus-yellow);
+            margin-bottom: 0.45rem;
+        }
+
+        .footer-copyright {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-disclaimer {
+            font-size: 0.72rem;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 768px) {
+            .card-presentation {
+                padding: 1.5rem;
+            }
+            .footer-texts {
+                text-align: left;
+                margin-left: 0;
+            }
+            .nav-links {
+                gap: 0.65rem;
+            }
+            .nav-links a {
+                font-size: 0.72rem;
+                padding: 0.25rem 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE ACCESO (LOCK SCREEN) -->
+    <div id="lock-screen" role="dialog" aria-modal="true" aria-labelledby="lock-title">
+        <div class="lock-card">
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="DOXUS" style="height:56px; width:auto; margin-bottom:1.5rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="rounded logo-fallback lock-logo-fallback" style="display:none;">D</div>
+            </div>
+            <h1 id="lock-title" class="lock-title">REPORTE TÉCNICO DE OPERACIÓN</h1>
+            <p class="lock-subtitle">Ingrese la clave proporcionada para visualizar el documento técnico.</p>
+            <form id="lock-form" class="lock-input-group" autocomplete="off">
+                <input type="password" id="lock-password" class="lock-input" placeholder="CLAVE DE ACCESO" aria-label="Clave de acceso" required>
+                <button type="submit" class="lock-btn">Acceder al Reporte</button>
+            </form>
+            <div id="lock-error" class="lock-error" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+    <header class="sticky-nav">
+        <div class="nav-container">
+            <a href="#" class="logo-wrapper" aria-label="Inicio DOXUS">
+                <img src="logo.png" alt="DOXUS" class="nav-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="rounded logo-fallback nav-logo-fallback" style="display:none;">D</div>
+            </a>
+            <nav class="nav-links" aria-label="Navegación de apartados">
+                <a href="#apartado-01">01. Hoja de Ruta</a>
+                <a href="#apartado-02">02. Análisis Fiduciario</a>
+                <a href="#apartado-03">03. Comparativa Financiera</a>
+                <a href="#apartado-04">04. Diagnóstico y Radial</a>
+                <a href="#apartado-05">05. Inventario</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO HEADER -->
+    <section class="hero-header">
+        <div class="hero-container">
+            <div class="hero-pill">
+                <span class="hero-pill-dot"></span>
+                <span>EVALUACIÓN FIDUCIARIA · PROYECTO INMOBILIARIO TIZAPÁN</span>
+            </div>
+            <h1 class="hero-title">Comparativa Técnica de Propuestas Fiduciarias: Fideicomiso de Desarrollo Inmobiliario A+B</h1>
+            <p class="hero-desc">
+                Análisis técnico, operativo y financiero de las propuestas emitidas por Banco Inmobiliario Mexicano (BIM), Banregio y Banco Actinver para la constitución y administración del patrimonio autónomo sobre un predio rústico de 7 hectáreas en Tizapán El Alto, Jalisco (76 lotes habitacionales y 2 macrolotes comerciales).
+            </p>
+            <div class="hero-meta-strip">
+                <div class="meta-item">
+                    <span class="meta-label">Fecha de Emisión</span>
+                    <span class="meta-value">26 de Noviembre de 2026</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Referencia Operativa</span>
+                    <span class="meta-value">GDL200 · Tizapán El Alto A+B (7 Has.)</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Emisor</span>
+                    <span class="meta-value">DOXUS</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Estatus</span>
+                    <span class="meta-value">Cotizaciones Vigentes · En Evaluación</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+        <!-- APARTADO 01: HOJA DE RUTA -->
+        <section id="apartado-01" class="card-presentation">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="title-accent-bar"></span>
+                    <h2 class="card-title">Hoja de Ruta Operativa y Recomendaciones</h2>
+                </div>
+                <span class="section-tag">APARTADO 01</span>
+            </div>
+            <p class="section-intro">
+                Secuencia técnica recomendada para la selección de la institución fiduciaria, integración documental y formalización del Fideicomiso Irrevocable de Administración e Inversión con Derecho a Reversión.
+            </p>
+            <div class="roadmap-grid">
+                <article class="roadmap-step">
+                    <span class="step-number">01</span>
+                    <h3 class="step-title">Selección de Institución Fiduciaria</h3>
+                    <p class="step-desc">
+                        Priorizar <strong>Banco Inmobiliario Mexicano (BIM)</strong> por ofrecer el menor costo acumulado proyectado ($667,500 MXN + IVA en horizonte de 3 años) y alcance operativo explícito para créditos puente, reversión y comercialización de 78 unidades privativas.
+                    </p>
+                </article>
+                <article class="roadmap-step">
+                    <span class="step-number">02</span>
+                    <h3 class="step-title">Negociación de Cláusulas de Control</h3>
+                    <p class="step-desc">
+                        Solicitar ajuste en el arancel de transmisión de unidades si se evalúa Banregio ($5,000 vs $2,500 MXN en BIM/Actinver) y acotar el concepto de "actos jurídicos diversos" para evitar cobros recurrentes durante la etapa de permisos y licencias.
+                    </p>
+                </article>
+                <article class="roadmap-step">
+                    <span class="step-number">03</span>
+                    <h3 class="step-title">Integración de Expediente KYC y Predio</h3>
+                    <p class="step-desc">
+                        Recabar escritura inscrita en RPP, Certificado de Libertad de Gravamen (o anuencia de acreedor hipotecario), boletas de predial, expedientes KYC/FATCA/Beneficiario Controlador de Persona Física (Fideicomitente A) y Persona Moral (Fideicomitente B).
+                    </p>
+                </article>
+                <article class="roadmap-step">
+                    <span class="step-number">04</span>
+                    <h3 class="step-title">Dictaminación en Comité y Firma</h3>
+                    <p class="step-desc">
+                        Someter el expediente completo a Comité Fiduciario antes del vencimiento de vigencia de la cotización (<strong>20 de diciembre de 2026</strong> para BIM; <strong>23 de enero de 2027</strong> para Actinver) y liquidar honorarios de aceptación y primera anualidad.
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <!-- APARTADO 02: DESGLOSE MODULAR POR INSTITUCIÓN -->
+        <section id="apartado-02" class="card-presentation">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="title-accent-bar"></span>
+                    <h2 class="card-title">Desglose Modular por Institución Fiduciaria</h2>
+                </div>
+                <span class="section-tag">APARTADO 02</span>
+            </div>
+            <p class="section-intro">
+                Evaluación individual de estructura contractual, aranceles, condicionantes operativas y alcances administrativos contenidos en cada propuesta recibida.
+            </p>
+
+            <div class="accordion-controls">
+                <button type="button" id="toggle-all-btn" class="btn-toggle-all">Colapsar Todas las Tarjetas</button>
+            </div>
+
+            <div class="accordion-list">
+                <!-- ACORDEÓN 1: BIM -->
+                <div class="accordion-item open">
+                    <button type="button" class="accordion-header" aria-expanded="true">
+                        <div class="accordion-header-left">
+                            <span class="badge-id">OPCIÓN 01 · MENOR COSTO</span>
+                            <span class="accordion-title">Banco Inmobiliario Mexicano, S.A. (BIM)</span>
+                        </div>
+                        <span class="accordion-chevron" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="subcards-grid">
+                            <div class="subcard subcard-full">
+                                <div class="subcard-label">Asignación Principal y Alcance Operativo</div>
+                                <div class="subcard-value">
+                                    <strong>Fideicomiso Irrevocable de Administración Inmobiliaria e Inversión con Derecho a Reversión.</strong> Contempla explícitamente la aportación del predio rústico de 7 Has. (valor de proyecto estimado en $350 MDP) por Fideicomitente A (Persona Física), desarrollo de 76 lotes habitacionales y 2 macrolotes comerciales por Fideicomitente B (Persona Moral), facultad de otorgar garantías hipotecarias/fiduciarias para créditos puente y extinción parcial/total a terceros.
+                                </div>
+                            </div>
+                            <div class="subcard">
+                                <div class="subcard-label">Estructura de Honorarios (Más IVA)</div>
+                                <ul class="subcard-list">
+                                    <li><strong>Aceptación y estructuración:</strong> $45,000.00 MXN (única vez, previo a firma, no reembolsable).</li>
+                                    <li><strong>Administración anual:</strong> $140,000.00 MXN (anualidad anticipada).</li>
+                                    <li><strong>Transmisión de inmuebles:</strong> $2,500.00 MXN por evento/unidad.</li>
+                                    <li><strong>Modificaciones, poderes, reversión/extinción o actos diversos:</strong> $7,500.00 MXN por evento.</li>
+                                </ul>
+                            </div>
+                            <div class="subcard">
+                                <div class="subcard-label">Condicionantes, Vigencia y Contacto</div>
+                                <ul class="subcard-list">
+                                    <li><strong>Vigencia de cotización:</strong> 30 días naturales a partir del 20 de noviembre de 2026 (vence 20 dic 2026).</li>
+                                    <li><strong>Actualización:</strong> Anual conforme al INPC (INEGI).</li>
+                                    <li><strong>Requisito patrimonial:</strong> Inmueble libre de gravamen o con anuencia del acreedor hipotecario.</li>
+                                    <li><strong>Contacto operativo:</strong> Ana Paula Sánchez Zaizar (Gerente de Promoción Fiduciaria).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACORDEÓN 2: BANREGIO -->
+                <div class="accordion-item open">
+                    <button type="button" class="accordion-header" aria-expanded="true">
+                        <div class="accordion-header-left">
+                            <span class="badge-id">OPCIÓN 02 · MAYOR COSTO SALIDA</span>
+                            <span class="accordion-title">Banco Regional, S.A. (Banregio Grupo Financiero)</span>
+                        </div>
+                        <span class="accordion-chevron" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="subcards-grid">
+                            <div class="subcard subcard-full">
+                                <div class="subcard-label">Asignación Principal y Formalización</div>
+                                <div class="subcard-value">
+                                    <strong>Fideicomiso de Desarrollo Inmobiliario A+B.</strong> El fiduciario elabora el proyecto de contrato sujeto a revisión de las partes para su formalización en contrato privado (con los gastos notariales o de correduría pública a cargo del fideicomitente cuando se requiera escritura pública). Sujeto a aprobación del Comité de Negocios Fiduciarios.
+                                </div>
+                            </div>
+                            <div class="subcard">
+                                <div class="subcard-label">Estructura de Honorarios (Más IVA)</div>
+                                <ul class="subcard-list">
+                                    <li><strong>Estudio, elaboración y aceptación:</strong> $50,000.00 MXN (única vez a la firma).</li>
+                                    <li><strong>Administración anual:</strong> $140,000.00 MXN (anualidad anticipada).</li>
+                                    <li><strong>Transmisión de unidades resultantes:</strong> $5,000.00 MXN por unidad (el doble que BIM/Actinver).</li>
+                                    <li><strong>Régimen en condominio:</strong> $15,000.00 MXN | <strong>Convenio aportación:</strong> $10,000.00 MXN.</li>
+                                    <li><strong>Modificaciones:</strong> $20,000.00 MXN | <strong>Actos diversos:</strong> $5,000.00 MXN | <strong>Poderes:</strong> $3,500.00 MXN.</li>
+                                </ul>
+                            </div>
+                            <div class="subcard">
+                                <div class="subcard-label">Cláusulas de Riesgo, Viáticos y Contacto</div>
+                                <ul class="subcard-list">
+                                    <li><strong>Penalización por litigio:</strong> Incremento automático del 50% en honorarios anuales si el fiduciario es demandado sin negligencia propia.</li>
+                                    <li><strong>Viáticos:</strong> No incluidos fuera de áreas metropolitanas de Monterrey, Guadalajara o CDMX.</li>
+                                    <li><strong>Actualización:</strong> Anual conforme al INPC (INEGI).</li>
+                                    <li><strong>Contacto operativo:</strong> Osmir Flores Vicencio (Cotización del 23 de noviembre de 2026).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACORDEÓN 3: ACTINVER -->
+                <div class="accordion-item open">
+                    <button type="button" class="accordion-header" aria-expanded="true">
+                        <div class="accordion-header-left">
+                            <span class="badge-id">OPCIÓN 03 · MAYOR COSTO FIJO</span>
+                            <span class="accordion-title">Banco Actinver, S.A. (Grupo Financiero Actinver)</span>
+                        </div>
+                        <span class="accordion-chevron" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="subcards-grid">
+                            <div class="subcard subcard-full">
+                                <div class="subcard-label">Asignación Principal y Servicios Bancarios Integrados</div>
+                                <div class="subcard-value">
+                                    <strong>Fideicomiso de Administración y Desarrollo Inmobiliario (76 lotes residenciales y 2 macrolotes comerciales).</strong> Incluye sin costo adicional la apertura y manejo de cuentas y subcuentas en Grupo Financiero Actinver, así como dispersiones vía SPEI en moneda nacional a bancos principales. Registra un valor estimado de aportación del inmueble de $75,000,000.00 MXN.
+                                </div>
+                            </div>
+                            <div class="subcard">
+                                <div class="subcard-label">Estructura de Honorarios (Más IVA)</div>
+                                <ul class="subcard-list">
+                                    <li><strong>Estudio, elaboración y aceptación:</strong> $70,000.00 MXN (única vez a la firma).</li>
+                                    <li><strong>Administración anual:</strong> $160,000.00 MXN (anualidad anticipada).</li>
+                                    <li><strong>Reversión / Transmisión de propiedad:</strong> $2,500.00 MXN por unidad.</li>
+                                    <li><strong>Régimen en condominio:</strong> $15,000.00 MXN | <strong>Convenios modificatorios:</strong> $20,000.00 MXN.</li>
+                                    <li><strong>Poderes, escrituras públicas y contratos privados:</strong> $5,000.00 MXN por acto.</li>
+                                </ul>
+                            </div>
+                            <div class="subcard">
+                                <div class="subcard-label">Condicionantes, Vigencia y Contacto</div>
+                                <ul class="subcard-list">
+                                    <li><strong>Vigencia de cotización:</strong> 60 días calendario desde recepción (24 de noviembre de 2026).</li>
+                                    <li><strong>Cargos al patrimonio:</strong> Permite pactar expresamente el pago de honorarios con cargo al patrimonio fideicomitido.</li>
+                                    <li><strong>Actualización:</strong> Anual conforme al INPC publicado por Banco de México.</li>
+                                    <li><strong>Contacto operativo:</strong> Lic. Sandra Judith Avalos Villaseñor (Gerente de Promoción Fiduciario).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- APARTADO 03: ESQUEMA FINANCIERO Y MATRIZ COMPARATIVA -->
+        <section id="apartado-03" class="card-presentation">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="title-accent-bar"></span>
+                    <h2 class="card-title">Esquema Financiero y Matriz Comparativa de Honorarios</h2>
+                </div>
+                <span class="section-tag">APARTADO 03</span>
+            </div>
+            <p class="section-intro">
+                Proyección financiera homologada sobre un horizonte operativo estándar de <strong>3 años de vigencia del fideicomiso</strong> y la transmisión individual de las <strong>78 unidades resultantes</strong> (76 lotes habitacionales + 2 macrolotes comerciales), más constitución de régimen en condominio. Cifras expresadas en Pesos Mexicanos (MXN) antes de IVA.
+            </p>
+
+            <!-- CAJA RESALTADA EN AMARILLO -->
+            <div class="financial-banner">
+                <div class="fin-metric">
+                    <div class="fin-metric-label">Desembolso Inicial Año 1 (BIM)</div>
+                    <div class="fin-metric-amount">$185,000.00</div>
+                    <div class="fin-metric-sub">Aceptación ($45k) + 1ª Anualidad ($140k) + IVA</div>
+                </div>
+                <div class="fin-metric">
+                    <div class="fin-metric-label">Costo Total Proyectado (BIM · 3 Años)</div>
+                    <div class="fin-metric-amount">$667,500.00</div>
+                    <div class="fin-metric-sub">Incluye 78 transmisiones ($195k) + Condominio ($7.5k)</div>
+                </div>
+                <div class="fin-metric">
+                    <div class="fin-metric-label">Ahorro Neto vs Actinver / Banregio</div>
+                    <div class="fin-metric-amount">$92,500 - $217,500</div>
+                    <div class="fin-metric-sub">Diferencial favorable en horizonte operativo de 3 años</div>
+                </div>
+            </div>
+
+            <!-- TABLA COMPARATIVA MATRICIAL -->
+            <div class="table-responsive">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th class="sticky-col">Concepto / Rubro Fiduciario</th>
+                            <th>BIM (Banco Inmobiliario)</th>
+                            <th>Banregio</th>
+                            <th>Banco Actinver</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="sticky-col">Estudio, Elaboración y Aceptación</td>
+                            <td class="cell-best">$45,000.00 MXN</td>
+                            <td>$50,000.00 MXN</td>
+                            <td class="cell-warn">$70,000.00 MXN</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Administración Anual (Anticipada)</td>
+                            <td class="cell-best">$140,000.00 MXN</td>
+                            <td class="cell-best">$140,000.00 MXN</td>
+                            <td class="cell-warn">$160,000.00 MXN</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Transmisión por Unidad (78 Unidades)</td>
+                            <td class="cell-best">$2,500.00 c/u ($195,000)</td>
+                            <td class="cell-warn">$5,000.00 c/u ($390,000)</td>
+                            <td class="cell-best">$2,500.00 c/u ($195,000)</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Régimen de Propiedad en Condominio</td>
+                            <td class="cell-best">$7,500.00 MXN (Acto diverso)</td>
+                            <td>$15,000.00 MXN</td>
+                            <td>$15,000.00 MXN</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Convenios Modificatorios</td>
+                            <td class="cell-best">$7,500.00 MXN</td>
+                            <td>$20,000.00 MXN</td>
+                            <td>$20,000.00 MXN</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Otorgamiento de Poderes</td>
+                            <td>$7,500.00 MXN</td>
+                            <td class="cell-best">$3,500.00 MXN</td>
+                            <td>$5,000.00 MXN</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Otros Actos Jurídicos / Contratos</td>
+                            <td>$7,500.00 MXN</td>
+                            <td class="cell-best">$5,000.00 MXN</td>
+                            <td class="cell-best">$5,000.00 MXN</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Convenio de Aportación Inmueble</td>
+                            <td>Incluido en constitución</td>
+                            <td>$10,000.00 MXN</td>
+                            <td>Incluido en constitución</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Manejo de Cuentas y SPEI Nacional</td>
+                            <td>Tarifas bancarias vigentes</td>
+                            <td>No especificado</td>
+                            <td class="cell-best">Sin comisión en Actinver</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky-col">Vigencia de la Cotización</td>
+                            <td>30 días naturales</td>
+                            <td>No especificada</td>
+                            <td class="cell-best">60 días calendario</td>
+                        </tr>
+                        <tr class="row-highlight">
+                            <td class="sticky-col">Desembolso Inicial (Firma Año 1)</td>
+                            <td>$185,000.00 MXN + IVA</td>
+                            <td>$190,000.00 MXN + IVA</td>
+                            <td>$230,000.00 MXN + IVA</td>
+                        </tr>
+                        <tr class="row-highlight">
+                            <td class="sticky-col">Costo Acumulado Proyectado (3 Años*)</td>
+                            <td>$667,500.00 MXN + IVA</td>
+                            <td>$885,000.00 MXN + IVA</td>
+                            <td>$760,000.00 MXN + IVA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-footnote">
+                *Nota de cálculo: El Costo Acumulado Proyectado a 3 años considera: (1) Aceptación + (3) Anualidades de administración + (78) Transmisiones de propiedad (76 lotes habitacionales y 2 macrolotes comerciales) + (1) Firma de régimen de propiedad en condominio. No incluye inflación anual (INPC), honorarios notariales, impuestos locales ni actos extraordinarios.
+            </p>
+        </section>
+
+        <!-- APARTADO 04: DIAGNÓSTICO, TIEMPOS Y ANÁLISIS COMPARATIVO -->
+        <section id="apartado-04" class="card-presentation">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="title-accent-bar"></span>
+                    <h2 class="card-title">Diagnóstico Operativo, Tiempos y Análisis Radial</h2>
+                </div>
+                <span class="section-tag">APARTADO 04</span>
+            </div>
+            <p class="section-intro">
+                Cronología de emisión de cotizaciones, ventanas críticas de vigencia y evaluación multidimensional comparativa entre las tres instituciones fiduciarias.
+            </p>
+
+            <div class="diag-layout">
+                <!-- COLUMNA IZQUIERDA: TIMELINE + NOTA CRÍTICA -->
+                <div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-date">20 de Noviembre de 2026</div>
+                            <div class="timeline-title">Emisión de Propuesta BIM</div>
+                            <div class="timeline-desc">
+                                Banco Inmobiliario Mexicano presenta términos para Fideicomiso Irrevocable de Administración e Inversión con Derecho a Reversión. Vigencia de 30 días naturales (límite: 20 de diciembre de 2026).
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-date">23 de Noviembre de 2026</div>
+                            <div class="timeline-title">Emisión de Propuesta Banregio</div>
+                            <div class="timeline-desc">
+                                Banco Regional presenta esquema de honorarios para Fideicomiso de Desarrollo Inmobiliario A+B sujeto a Comité de Negocios Fiduciarios.
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-date">24 de Noviembre de 2026</div>
+                            <div class="timeline-title">Emisión de Propuesta Actinver</div>
+                            <div class="timeline-desc">
+                                Banco Actinver emite cotización con vigencia de 60 días calendario (límite: 23 de enero de 2027), incluyendo apertura de cuentas y SPEI sin comisión interna.
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-date">Fase Inmediata · Diciembre 2026</div>
+                            <div class="timeline-title">Dictaminación Jurídica y Comité Fiduciario</div>
+                            <div class="timeline-desc">
+                                Ninguna cotización constituye aceptación definitiva. La constitución formal depende de la validación del expediente KYC/predial y aprobación del Comité Fiduciario correspondiente.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="critical-note">
+                        <div class="critical-note-title">Nota de Análisis Técnico Crítico</div>
+                        <p class="critical-note-text">
+                            El factor determinante de eficiencia financiera en un desarrollo de <strong>78 unidades privativas</strong> no es la anualidad fija, sino el arancel unitario por escrituración de salida. Banregio duplica el costo por transmisión ($5,000 MXN vs $2,500 MXN en BIM y Actinver), generando un sobrecosto directo de <strong>$195,000.00 MXN + IVA</strong> únicamente en la etapa de escrituración a compradores finales. Adicionalmente, BIM detalla explícitamente los fines de garantía para créditos puente y reversión, reduciendo fricciones en la redacción contractual.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: DIAGRAMA RADIAL COMPARATIVO (SVG) -->
+                <div class="radar-box">
+                    <div class="radar-title">Índice Comparativo de Eficiencia Fiduciaria</div>
+                    <div class="radar-subtitle">Escala porcentual de conveniencia operativa (20% a 100%) y costos clave</div>
+
+                    <div class="radar-legend">
+                        <span class="legend-item">
+                            <span class="legend-swatch" style="background-color:#Ffbc06; border:1px solid #262a36;"></span>
+                            BIM (89%)
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-swatch" style="background-color:#262a36;"></span>
+                            Actinver (76%)
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-swatch" style="background-color:#5a6275;"></span>
+                            Banregio (64%)
+                        </span>
+                    </div>
+
+                    <div class="radar-svg-wrap">
+                        <svg viewBox="0 0 460 400" role="img" aria-label="Diagrama radial comparativo entre BIM, Actinver y Banregio">
+                            <!-- Pentágonos concéntricos (20%, 40%, 60%, 80%, 100%) -->
+                            <g stroke="#e9ecef" stroke-width="1.2" fill="none">
+                                <polygon points="230,180 253.8,197.3 244.7,225.2 215.3,225.2 206.2,197.3"/>
+                                <polygon points="230,155 277.6,189.5 259.4,245.5 200.6,245.5 182.4,189.5"/>
+                                <polygon points="230,130 301.3,181.8 274.1,265.7 185.9,265.7 158.7,181.8"/>
+                                <polygon points="230,105 325.1,174.1 288.8,285.9 171.2,285.9 134.9,174.1"/>
+                                <polygon points="230,80 348.9,166.4 303.5,306.1 156.5,306.1 111.1,166.4" stroke="#cbd5e1" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- Ejes radiales -->
+                            <g stroke="#cbd5e1" stroke-width="1">
+                                <line x1="230" y1="205" x2="230" y2="80"/>
+                                <line x1="230" y1="205" x2="348.9" y2="166.4"/>
+                                <line x1="230" y1="205" x2="303.5" y2="306.1"/>
+                                <line x1="230" y1="205" x2="156.5" y2="306.1"/>
+                                <line x1="230" y1="205" x2="111.1" y2="166.4"/>
+                            </g>
+
+                            <!-- Escalas porcentuales -->
+                            <g font-family="Inter, sans-serif" font-size="9" font-weight="700" fill="#5a6275">
+                                <text x="234" y="182">20%</text>
+                                <text x="234" y="157">40%</text>
+                                <text x="234" y="132">60%</text>
+                                <text x="234" y="107">80%</text>
+                                <text x="234" y="82">100%</text>
+                            </g>
+
+                            <!-- POLÍGONO BANREGIO (#5a6275) -->
+                            <polygon points="230,95 331.1,172.2 263.1,250.5 189.6,260.6 170.6,185.7"
+                                     fill="rgba(90, 98, 117, 0.16)" stroke="#5a6275" stroke-width="2" stroke-dasharray="4 3"/>
+
+                            <!-- POLÍGONO ACTINVER (#262a36) -->
+                            <polygon points="230,125 313.2,178.0 297.6,298.0 182.2,270.7 123.0,170.2"
+                                     fill="rgba(38, 42, 54, 0.18)" stroke="#262a36" stroke-width="2.2"/>
+
+                            <!-- POLÍGONO BIM (#Ffbc06) -->
+                            <polygon points="230,86.2 334.6,171.0 297.6,298.0 167.5,290.9 127.8,171.8"
+                                     fill="rgba(255, 188, 6, 0.30)" stroke="#Ffbc06" stroke-width="2.8"/>
+
+                            <!-- Vértices destacados BIM -->
+                            <g fill="#Ffbc06" stroke="#262a36" stroke-width="1.8">
+                                <circle cx="230" cy="86.2" r="4.5"/>
+                                <circle cx="334.6" cy="171.0" r="4.5"/>
+                                <circle cx="297.6" cy="298.0" r="4.5"/>
+                                <circle cx="167.5" cy="290.9" r="4.5"/>
+                                <circle cx="127.8" cy="171.8" r="4.5"/>
+                            </g>
+
+                            <!-- Etiquetas de Ejes y Valores Monetarios -->
+                            <g font-family="Inter, sans-serif" text-anchor="middle">
+                                <text x="230" y="46" font-size="11" font-weight="800" fill="#262a36">Costo Inicial Firma</text>
+                                <text x="230" y="60" font-size="9.5" font-weight="700" fill="#5a6275">BIM $45k · BR $50k · ACT $70k</text>
+
+                                <text x="392" y="152" font-size="11" font-weight="800" fill="#262a36">Admin. Anual</text>
+                                <text x="392" y="166" font-size="9.5" font-weight="700" fill="#5a6275">$140k vs $160k</text>
+
+                                <text x="342" y="330" font-size="11" font-weight="800" fill="#262a36">Transmisión (78 U.)</text>
+                                <text x="342" y="344" font-size="9.5" font-weight="700" fill="#5a6275">$2.5k vs $5.0k c/u</text>
+
+                                <text x="118" y="330" font-size="11" font-weight="800" fill="#262a36">Actos y Modif.</text>
+                                <text x="118" y="344" font-size="9.5" font-weight="700" fill="#5a6275">$7.5k vs $15k-$20k</text>
+
+                                <text x="64" y="152" font-size="11" font-weight="800" fill="#262a36">Alcance / Vigencia</text>
+                                <text x="64" y="166" font-size="9.5" font-weight="700" fill="#5a6275">30d vs 60d · Reversión</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- APARTADO 05: INVENTARIO DE DOCUMENTOS -->
+        <section id="apartado-05" class="card-presentation">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="title-accent-bar"></span>
+                    <h2 class="card-title">Inventario de Documentos Analizados y Requerimientos</h2>
+                </div>
+                <span class="section-tag">APARTADO 05</span>
+            </div>
+            <p class="section-intro">
+                Registro de propuestas fiduciarias revisadas y matriz de documentación requerida para la apertura de expediente y dictaminación ante Comité Fiduciario.
+            </p>
+
+            <div class="table-responsive">
+                <table class="doc-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Documento / Expediente</th>
+                            <th>Estatus</th>
+                            <th>Observaciones Técnicas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="doc-id">DOC-01</span></td>
+                            <td><strong>Cotización Banco Inmobiliario Mexicano (BIM)</strong><br><span style="color:var(--text-slate); font-size:0.82rem;">Fecha: 20 de noviembre de 2026 · Suscribe: Ana Paula Sánchez Zaizar</span></td>
+                            <td><span class="status-pill">Recibido · Vigente 30d</span></td>
+                            <td>Contempla Fideicomiso Irrevocable de Administración e Inversión con Derecho a Reversión sobre 7 Has. (valor proyecto $350 MDP, 76 lotes y 2 macrolotes).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-id">DOC-02</span></td>
+                            <td><strong>Cotización Banregio Grupo Financiero</strong><br><span style="color:var(--text-slate); font-size:0.82rem;">Fecha: 23 de noviembre de 2026 · Suscribe: Osmir Flores Vicencio</span></td>
+                            <td><span class="status-pill">Recibido · En Revisión</span></td>
+                            <td>Tarifa aplicable a Fideicomiso de Desarrollo Inmobiliario A+B. Requiere autorización del Comité de Negocios Fiduciarios; arancel alto en escrituración individual ($5,000 MXN).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-id">DOC-03</span></td>
+                            <td><strong>Propuesta Banco Actinver</strong><br><span style="color:var(--text-slate); font-size:0.82rem;">Fecha: 24 de noviembre de 2026 · Suscribe: Lic. Sandra Judith Avalos</span></td>
+                            <td><span class="status-pill">Recibido · Vigente 60d</span></td>
+                            <td>Propuesta indicativa para 76 lotes residenciales y 2 macrolotes comerciales. Registra valor estimado del predio en $75 MDP e incluye manejo de cuentas/SPEI sin costo.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-id">DOC-04</span></td>
+                            <td><strong>Expediente Fideicomitente A (Persona Física Aportante)</strong><br><span style="color:var(--text-slate); font-size:0.82rem;">Formatos KYC, FATCA, Beneficiario Controlador y Aviso de Privacidad</span></td>
+                            <td><span class="status-pill">Por Integrar</span></td>
+                            <td>Requiere INE/Pasaporte vigente, Constancia de Situación Fiscal (&lt;3 meses), FIEL, comprobante de domicilio (&lt;3 meses), acta de matrimonio e ID de cónyuge (en su caso).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-id">DOC-05</span></td>
+                            <td><strong>Expediente Fideicomitente B (Persona Moral Desarrolladora)</strong><br><span style="color:var(--text-slate); font-size:0.82rem;">Acta constitutiva, estructura accionaria, poderes y KYC/FATCA</span></td>
+                            <td><span class="status-pill">Por Integrar</span></td>
+                            <td>Requiere testimonios inscritos en RPP, identificación y actas de matrimonio de accionistas con participación &gt;15%, CSF (&lt;3 meses) y expedientes de Representantes Legales.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-id">DOC-06</span></td>
+                            <td><strong>Documentación Patrimonial del Predio Rústico (7 Has.)</strong><br><span style="color:var(--text-slate); font-size:0.82rem;">Ubicación: Municipio de Tizapán El Alto, Jalisco</span></td>
+                            <td><span class="status-pill">Por Integrar</span></td>
+                            <td>Escritura pública inscrita en RPP, Certificado de Libertad de Gravamen vigente (o anuencia expresa del acreedor hipotecario), boletas de predial y factibilidades en trámite.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="DOXUS" class="footer-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="rounded logo-fallback footer-logo-fallback" style="display:none;">D</div>
+            </div>
+            <div class="footer-texts">
+                <div class="footer-signature">MAXIMILIANO ARÉCHIGA-MORALES</div>
+                <div class="footer-copyright">DOXUS EN COLABORACIÓN CON EL MTRO. RUBÉN SANTANA PARTIDA · © 2026 DOXUS - TODOS LOS DERECHOS RESERVADOS</div>
+                <p class="footer-disclaimer">
+                    LA INFORMACIÓN PRESENTADA AQUÍ ES UN RESUMEN GENERAL DE LA OPERACIÓN QUE FUE REFERIDA PARA SU REVISIÓN. SE RECOMIENDA CONSULTAR CADA CONTRATO RELACIONADO Y COMENTAR CON EL PROFESIONISTA DE SU CONFIANZA EL ALCANCE DE LAS DECISIONES.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            const VALID_PASS = 'TIZAPAN';
+            const STORAGE_KEY = 'doxus_tizapan_unlocked';
+            const lockScreen = document.getElementById('lock-screen');
+            const lockForm = document.getElementById('lock-form');
+            const lockInput = document.getElementById('lock-password');
+            const lockError = document.getElementById('lock-error');
+
+            function getSessionUnlocked() {
+                try {
+                    return sessionStorage.getItem(STORAGE_KEY) === 'true';
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function setSessionUnlocked() {
+                try {
+                    sessionStorage.setItem(STORAGE_KEY, 'true');
+                } catch (e) {
+                    // Fallback silencioso para entornos con iframes restringidos
+                }
+            }
+
+            function unlockReport() {
+                lockScreen.classList.add('unlocked');
+                setSessionUnlocked();
+            }
+
+            if (getSessionUnlocked()) {
+                unlockReport();
+            }
+
+            lockForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const value = lockInput.value.trim();
+                if (value === VALID_PASS) {
+                    lockError.textContent = '';
+                    unlockReport();
+                } else {
+                    lockError.textContent = 'Clave incorrecta. Verifique la contraseña proporcionada.';
+                    lockInput.focus();
+                    lockInput.select();
+                }
+            });
+
+            // Acordeones individuales
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(function (header) {
+                header.addEventListener('click', function () {
+                    const item = header.closest('.accordion-item');
+                    const isOpen = item.classList.toggle('open');
+                    header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    updateToggleAllLabel();
+                });
+            });
+
+            // Botón Colapsar / Expandir Todas las Tarjetas
+            const toggleAllBtn = document.getElementById('toggle-all-btn');
+            const accordionItems = document.querySelectorAll('.accordion-item');
+
+            function updateToggleAllLabel() {
+                const anyOpen = Array.from(accordionItems).some(function (item) {
+                    return item.classList.contains('open');
+                });
+                toggleAllBtn.textContent = anyOpen
+                    ? 'Colapsar Todas las Tarjetas'
+                    : 'Expandir Todas las Tarjetas';
+            }
+
+            toggleAllBtn.addEventListener('click', function () {
+                const anyOpen = Array.from(accordionItems).some(function (item) {
+                    return item.classList.contains('open');
+                });
+                accordionItems.forEach(function (item) {
+                    const header = item.querySelector('.accordion-header');
+                    if (anyOpen) {
+                        item.classList.remove('open');
+                        header.setAttribute('aria-expanded', 'false');
+                    } else {
+                        item.classList.add('open');
+                        header.setAttribute('aria-expanded', 'true');
+                    }
+                });
+                updateToggleAllLabel();
+            });
+        })();
+    </script>
+</body>
+</html>
