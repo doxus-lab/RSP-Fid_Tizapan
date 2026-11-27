@@ -202,6 +202,32 @@
             font-size: 1.2rem;
         }
 
+        .footer-logos-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .partner-logo-footer {
+            height: 40px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .partner-badge-fallback {
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 0.4rem;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
         .nav-links {
             display: flex;
             align-items: center;
@@ -1590,9 +1616,15 @@
     <!-- FOOTER INSTITUCIONAL -->
     <footer class="site-footer">
         <div class="footer-container">
-            <div class="logo-wrapper">
-                <img src="logo.png" alt="DOXUS" class="footer-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="rounded logo-fallback footer-logo-fallback" style="display:none;">D</div>
+            <div class="footer-logos-stack">
+                <div class="logo-wrapper">
+                    <img src="logo.png" alt="DOXUS" class="footer-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="rounded logo-fallback footer-logo-fallback" style="display:none;">D</div>
+                </div>
+                <div class="logo-wrapper">
+                    <img src="logo-coparmex-blanco.png" alt="COPARMEX" class="partner-logo-footer" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="partner-badge-fallback" style="display:none;">COPARMEX</span>
+                </div>
             </div>
             <div class="footer-texts">
                 <div class="footer-signature">MAXIMILIANO ARÉCHIGA-MORALES</div>
